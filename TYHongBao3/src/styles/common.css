@@ -1,0 +1,32 @@
+/*@font-face {*/
+
+  /*font-family:'fzztjw';*/
+
+  /*src: url('../font/SourceHanSansCN-Normal.otf');*/
+
+  /*font-weight: normal;*/
+
+  /*font-style: normal;*/
+
+/*}*/
+
+/*通用样式*/
+body {
+  /*font-family: PingFang SC, Verdana, Helvetica Neue, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;*/
+  /*font-family: 'fzztjw';*/
+  /*font-family:"Noto Sans CJK SC", "Source Han Sans CN";*/
+}
+img {border:0;vertical-align:middle; } /* 去掉图片底部默认的3像素空白缝隙*/
+textarea { resize:none; } /*防止拖动*/
+i {font-style: normal}
+
+.van-nav-bar .van-icon {
+  color: #333;
+  font-size: 23px;
+}
+.van-nav-bar {
+  background-color: #F5F0F0;
+}
+.van-hairline--bottom::after {
+  border: none!important;
+}

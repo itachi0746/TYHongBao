@@ -3,12 +3,13 @@
     <div class="top">
       <div class="logo-box"></div>
       <div class="title-box"></div>
-      <div class="follow-box">关注"传行"</div>
-    </div>
-    <div class="btm">
       <div class="btn-box">
         <div class="btn" @click="clickGet">领红包</div>
       </div>
+      <div class="follow-box">关注"传行"</div>
+    </div>
+    <div class="btm">
+
       <div class="ticket-box">
         <div class="ticket">
           <div class="ticket-l">
@@ -17,22 +18,35 @@
               200
             </div>
           </div>
-          <div class="ticket-m">
-            <div class="m-box">
-              <div>优惠券</div>
-              <div>有效期至2019-5-22</div>
+          <div class="ticket-r">
+            <div class="ticket-r-l1">优惠券</div>
+            <div class="ticket-r-l2">有效期至2019-5-22</div>
+            <div class="ticket-r-l3">
+              <div class="ticket-r-l3-btn">立即领取</div>
             </div>
           </div>
-          <div class="ticket-r">立即领取</div>
         </div>
       </div>
       <div class="rule-box">
         <div class="rule-title">
-          <div class="line line1"></div>
-          <div>活动规则</div>
-          <div class="line line2"></div>
+          <div class="line">
+            <div class="line-font">
+              <i>活</i>
+              <i>动</i>
+              <i>规</i>
+              <i>则</i>
+            </div>
+          </div>
         </div>
         <div class="rule-main">
+
+          1、本次秒杀活动为中国电信天翼用户专享。
+          2、活动期间使用任何舞弊行为的用户一经发现，即刻取消秒杀活动资格。
+          3、每日秒杀的礼品数量有限，秒完即止。秒杀礼品库存数量在秒杀过程中实时变化，秒杀成功与否以实际结果为准。
+          4、每名用户每天可成功参与一次秒杀，活动期间每名用户最高可成功秒杀5次。
+          5、在成功秒杀后，用户需提供真实信息。如因用户资料不全导致活动奖品无法正确发放的情况，主办方不对由此产生的任何后果负责。
+          6、所有礼品将在活动结束后的15个工作日内免费寄出。
+          7、本活动最终解释权归中国电信天翼爱游戏所有。
 
         </div>
       </div>
@@ -42,8 +56,8 @@
         我的奖品
       </div>
     </div>
-    <div class="layer-div" @touchmove.prevent="" v-if="showLayer">
-      <div class="kai" v-if="showKai">
+    <div class="layer-div" @touchmove.prevent="" v-show="showLayer">
+      <div class="kai" v-show="showKai">
         <div>
           <div class="logo-box2">
             <div class="logo-box2-inner"></div>
@@ -55,14 +69,14 @@
           <img @click="clickClose" class="cha" src="../assets/cha.png" alt="">
         </div>
       </div>
-      <div class="kai2" v-if="showKai2">
+      <div class="kai2" v-show="showKai2">
         <div>
           <div class="kai2-money-box">
             <div class="kai2-money">
-              <div class="money-box">
-                <span>200</span>
-                <span>元</span>
-              </div>
+              <!--<div class="money-box">-->
+                <!--<span>200</span>-->
+                <!--<span>元</span>-->
+              <!--</div>-->
             </div>
           </div>
           <div class="kai2-mid">
@@ -70,13 +84,13 @@
             <div>200元红包</div>
           </div>
           <div class="kai2-btm">
-            <div class="kai2-btn" @click="clickKnow">知道了</div>
+            <div class="kai2-btn" @click="clickKnow">我知道了</div>
           </div>
         </div>
       </div>
-      <div class="kai3" v-if="showKai3">
+      <div class="kai3" v-show="showKai3">
         <div>
-          <img src="../assets/cha-s.png" alt="" class="cha-s" @click="clickClose">
+          <img src="../assets/cha.png" alt="" class="cha-s" @click="clickClose">
           <div class="kai3-font1">领取成功！</div>
           <div class="kai3-font2">可到“我的奖品”页面查看</div>
         </div>
@@ -177,7 +191,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
   .index {
-    background-color: #EF4143;
+    background-color: #3E50B4;
   }
 
   .top {
@@ -215,7 +229,7 @@ export default {
     font-size: 28px;
     width: 196px;
     height: 72px;
-    background-color: #E74535;
+    background-color: #3E50B4;
     border-top-left-radius: 36px;
     border-bottom-left-radius: 36px;
     @include defaultFlex;
@@ -224,23 +238,27 @@ export default {
   .btm {
     width: 710px;
     border-radius: 16px;
-    background-color: #D71820;
+    background-color: #3E50B4;
     margin: 0 auto;
+    padding-top: 60px;
   }
 
   .btn-box {
-    //    @include defaultFlex;
-    padding: 56px 154px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
   }
 
   .btn {
-    width: 402px;
-    height: 96px;
+    width: 485px;
+    height: 90px;
     background: url("../assets/btnbg.png") no-repeat;
     background-size: 100% 100%;
-    color: #DA453B;
+    color: #fff;
     @include defaultFlex;
     font-weight: bold;
+    margin: 0 auto;
   }
 
   .ticket-box {
@@ -254,15 +272,36 @@ export default {
     background-size: 100% 100%;
     margin-bottom: 20px;
     display: flex;
-    color: #C8151B;
+    color: #555FE5;
   }
 
   .ticket-r {
-    width: 133px;
+    width: 382px;
     height: 100%;
     @include borderBox();
-    padding: 30px 57px 30px 44px;
+    padding: 30px 0;
     font-size: 34px;
+    text-align: center;
+  }
+  .ticket-r-l1 {
+    font-size: 36px;
+    font-weight: bold;
+  }
+  .ticket-r-l2 {
+    font-size: 24px;
+    margin: 5px 0 10px;
+  }
+  .ticket-r-l3 {
+    display: flex;
+    justify-content: center;
+  }
+  .ticket-r-l3-btn {
+    width: 207px;
+    height: 66px;
+    background-color: #555FE5;
+    color: #fff;
+    @include defaultFlex;
+    font-size: 26px;
   }
 
   .ticket-m {
@@ -281,13 +320,14 @@ export default {
   }
 
   .ticket-l {
-    width: 258px;
+    width: 277px;
     height: 100%;
     position: relative;
+    color: #FFCB32;
   }
 
   .ticket-num {
-    font-size: 100px;
+    font-size: 88px;
     @include center;
     left: 60%;
   }
@@ -295,40 +335,38 @@ export default {
   .ticket-icon {
     position: absolute;
     left: -40px;
-    top: -10px;
-    font-size: 46px;
+    bottom: 13px;
+    font-size: 42px;
     font-weight: bold;
   }
 
   .rule-box {
-    /*padding: 80px 21px 55px;*/
-    padding: 80px 0 55px;
+    padding: 60px 0 55px;
   }
 
   .line {
-    width: 280px;
-    height: 20px;
-  }
-
-  .line2 {
-    background: url("../assets/line.png") no-repeat;
+    width: 652px;
+    height: 76px;
+    background: url("../assets/linebg.png") no-repeat;
     background-size: 100% 100%;
-
-  }
-
-  .line1 {
-    background: url("../assets/line.png") no-repeat;
-    transform: rotate(180deg);
-    background-size: 100% 100%;
-
   }
 
   .rule-title {
     display: flex;
     align-items: center;
+    justify-content: center;
     color: #fff;
-    font-size: 30px;
-    margin-bottom: 60px;
+    font-size: 32px;
+    margin-bottom: 30px;
+  }
+  .line-font {
+    width: 265px;
+    height: 76px;
+    margin: 0 auto;
+    letter-spacing: 30px;
+    @include defaultFlex;
+    @include borderBox();
+    padding-left: 28px;
   }
 
   .rule-title > div:nth-child(2) {
@@ -340,7 +378,9 @@ export default {
   .rule-main {
     font-size: 28px;
     color: #fff;
-    padding: 0 21px;
+    padding: 53px 34px 64px;
+    background-color: #243593;
+    border-radius: 20px;
 
     /deep/ *{
       padding:0;
@@ -361,7 +401,7 @@ export default {
     background-size: 100% 100%;
     @include defaultFlex;
     font-size: 36px;
-    color: #DA453B;
+    color: #fff;
     font-weight: bold;
   }
   .layer-div {
@@ -378,6 +418,7 @@ export default {
   }
   .kai2 {
     width: 100%;
+    top: 35%;
     @include defaultFlex;
   }
   .kai > div:nth-child(1) {
@@ -390,15 +431,15 @@ export default {
   }
   .kai2 > div:nth-child(1) {
     position: relative;
-    width: 714px;
-    height: 900px;
+    width: 100%;
+    height: 1026px;
     background: url("../assets/kai2.png") no-repeat;
     background-size: 100% 100%;
   }
   .kai3 > div:nth-child(1) {
     position: relative;
-    width: 585px;
-    height: 572px;
+    width: 492px;
+    height: 350px;
     background: url("../assets/kai3.png") no-repeat;
     background-size: 100% 100%;
   }
@@ -445,7 +486,7 @@ export default {
   .kai2-money-box {
     display: flex;
     justify-content: center;
-    margin-bottom: 50px;
+    margin-bottom: 250px;
   }
   .kai2-money {
     width: 305px;
@@ -480,34 +521,33 @@ export default {
     .kai2-btn {
       width: 402px;
       height: 96px;
-      background: url("../assets/btnbg.png") no-repeat;
+      background: url("../assets/btnbg2.png") no-repeat;
       background-size: 100% 100%;
       @include defaultFlex;
-      color: #DC5A51;
+      color: #fff;
       font-size: 36px;
-      font-weight: bold;
+      /*font-weight: bold;*/
     }
   }
   .kai3 {
     text-align: center;
   }
   .cha-s {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    width: 30px;
+    width: 72px;
     z-index: 10;
+    @include center;
+    top: 120%;
   }
   .kai3-font1 {
     color: #fff;
     font-size: 36px;
     position: relative;
-    top: 40px;
+    top: 200px;
   }
   .kai3-font2 {
     color: #fff;
     font-size: 28px;
     position: relative;
-    top: 53px;
+    top: 223px;
   }
 </style>
