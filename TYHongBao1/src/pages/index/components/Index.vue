@@ -1,7 +1,9 @@
 <template>
   <div class="index">
     <div class="top">
-      <div class="logo-box"></div>
+      <div class="logo-box">
+        <img :src="logoUrl" alt="" v-if="logoUrl">
+      </div>
       <div class="title-box"></div>
       <div class="follow-box">关注"传行"</div>
     </div>
@@ -9,6 +11,23 @@
       <div class="btn-box">
         <div class="btn" @click="clickGet">领红包</div>
       </div>
+      <!--<div class="ticket-box" v-if="ticketArr">-->
+        <!--<div class="ticket" v-for="(item,index) in ticketArr" :key="index">-->
+          <!--<div class="ticket-l">-->
+            <!--<div class="ticket-num">-->
+              <!--<i class="ticket-icon">￥</i>-->
+              <!--{{item.prize}}-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="ticket-m">-->
+            <!--<div class="m-box">-->
+              <!--<div>优惠券</div>-->
+              <!--<div>有效期至{{item.date}}</div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="ticket-r">立即领取</div>-->
+        <!--</div>-->
+      <!--</div>-->
       <div class="ticket-box">
         <div class="ticket">
           <div class="ticket-l">
@@ -32,7 +51,7 @@
           <div>活动规则</div>
           <div class="line line2"></div>
         </div>
-        <div class="rule-main">
+        <div class="rule-main" v-html="ruleDetail">
 
         </div>
       </div>
@@ -60,14 +79,14 @@
           <div class="kai2-money-box">
             <div class="kai2-money">
               <div class="money-box">
-                <span>200</span>
+                <span>{{redNum}}</span>
                 <span>元</span>
               </div>
             </div>
           </div>
           <div class="kai2-mid">
             <div>恭喜你获得</div>
-            <div>200元红包</div>
+            <div>{{redNum}}元红包</div>
           </div>
           <div class="kai2-btm">
             <div class="kai2-btn" @click="clickKnow">知道了</div>
@@ -98,6 +117,8 @@ export default {
       showKai3: false,
       logoUrl: null, // 酒店logo图片
       ruleDetail: null, // 活动规则说明
+      ticketArr: null, // 优惠券数组
+      redNum: null // 红包数值
     }
   },
   components: {},
@@ -118,8 +139,21 @@ export default {
      * 点击开红包
      */
     clickKai () {
-      this.showKai = false
-      this.showKai2 = true
+      utils.toast(this, '', 'loading')
+      let posObj = utils.getLocation()
+      // todo 判断经纬度对象是否为空
+      let theData = {
+        ActivityId: this.id,
+        latitude: posObj.lat + '',
+        longitude: posObj.lng + ''
+      }
+      postData('/DoDraw', theData).then((res) => {
+        console.log(res)
+        utils.toast(this, '', 'clear')
+        this.redNum = res.Data.CMF3_VALUE
+        this.showKai = false
+        this.showKai2 = true
+      })
     },
     /**
      * 点击知道了 按钮
@@ -133,24 +167,6 @@ export default {
      */
     clickMyPrize () {
       window.GoToPage('', 'myPrize.html', {})
-    },
-    /**
-     * 点击签到
-     */
-    clickSign () {
-      utils.toast(this, '', 'loading')
-      let posObj = utils.getLocation()
-      // todo 判断经纬度对象是否为空
-      let theData = {
-        ActivityId: this.id,
-        latitude: posObj.lat + '',
-        longitude: posObj.lng + ''
-      }
-      postData('/SignInActivity', theData).then((res) => {
-        console.log(res)
-        utils.toast(this, '', 'clear')
-        this.showLayer = true
-      })
     }
   },
   mounted () {
@@ -163,12 +179,20 @@ export default {
       utils.toast(this, '未知活动', 'fail')
       return
     }
+    const data = {
+      'ActivityId': this.id
+    }
     utils.toast(this, '', 'loading')
-    postData('/ActivityInfo', {'ActivityId': this.id}).then((res) => {
+    postData('/ActivityInfo', data).then((res) => {
       console.log(res)
-      utils.toast(this, '', 'clear')
+//      utils.toast(this, '', 'clear')
       this.ruleDetail = res.Data.CMA1_CONTENT
       this.logoUrl = res.Data.CMA1_LOGO_URL
+    }).then((res) => {
+      postData('/ActivityPrizes', data).then((res) => {
+        console.log(res)
+        utils.toast(this, '', 'clear')
+      })
     })
   }
 }
@@ -195,6 +219,10 @@ export default {
     background-size: 100% 100%;
     width: 324px;
     height: 76px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .title-box {

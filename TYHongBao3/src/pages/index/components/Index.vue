@@ -12,7 +12,6 @@
       <div class="tuxing2"></div>
     </div>
     <div class="btm">
-
       <div class="ticket-box">
         <div class="ticket">
           <div class="ticket-l">
@@ -189,8 +188,6 @@ export default {
     postData('/ActivityInfo', {'ActivityId': this.id}).then((res) => {
       console.log(res)
       utils.toast(this, '', 'clear')
-      this.ruleDetail = res.Data.CMA1_CONTENT
-      this.logoUrl = res.Data.CMA1_LOGO_URL
     })
   }
 }

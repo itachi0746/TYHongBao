@@ -28,6 +28,16 @@
                 <div class="li-line3">有效期至2019-5-22</div>
               </div>
             </li>
+            <!--<li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">-->
+              <!--<div class="li-box">-->
+                <!--<div class="li-line1">{{item.CMF3_PRIZE_NAME}}</div>-->
+                <!--<div class="li-line2">-->
+                  <!--{{item.CMF3_VALUE}}-->
+                  <!--<i>元</i>-->
+                <!--</div>-->
+                <!--<div class="li-line3">有效期至{{item.CMF3_USED_TIME}}</div>-->
+              <!--</div>-->
+            <!--</li>-->
           </ul>
         </van-list>
     </van-pull-refresh>
@@ -44,14 +54,12 @@ export default {
       list: [],
       loading: false,
       finished: false,
-      isLoading: false
+      isLoading: false,
+      pageIndex: 1 // 当前页
     }
   },
   components: {},
   mounted () {
-//    setTimeout(() => {
-//      this.setImgBoxHeight()
-//    }, 300)
     this.setImgBoxHeight2()
   },
   created () {
@@ -61,11 +69,18 @@ export default {
       utils.toast(this, '未知活动', 'fail')
       return
     }
+    const data = {
+      ActivityId: this.id,
+      PageIndex: this.pageIndex
+    }
     utils.toast(this, '', 'loading')
-    postData('/MyActivityPrizes', {ActivityId: this.id}).then((res) => {
+    postData('/MyActivityPrizes', data).then((res) => {
       console.log(res)
       utils.toast(this, '', 'clear')
       this.list = res.Data.IList
+      for (let item of this.list) { // 格式化时间
+        utils.formatObj(item, false)
+      }
     })
   },
   methods: {
@@ -73,7 +88,7 @@ export default {
      * @method 设置滚动容器的高度
      */
     setImgBoxHeight2 () {
-      let windowHeight = document.body.clientHeight;
+      let windowHeight = document.body.clientHeight
       let headerHeight = this.$refs.header.offsetHeight
       console.log(`windowHeight: ${windowHeight}, headerHeight: ${headerHeight}`)
 //      this.$refs['img-box'].style.height = (windowHeight - headerHeight) + 'px'
