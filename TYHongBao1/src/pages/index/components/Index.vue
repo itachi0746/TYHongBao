@@ -5,7 +5,7 @@
         <img :src="logoUrl" alt="" v-if="logoUrl">
       </div>
       <div class="title-box"></div>
-      <div class="follow-box">关注"传行"</div>
+      <div class="follow-box" @click="clickFollow">关注"传行"</div>
     </div>
     <div class="btm">
       <div class="btn-box">
@@ -167,6 +167,11 @@ export default {
      */
     clickMyPrize () {
       window.GoToPage('', 'myPrize.html', {})
+    },
+    /**
+     * 点击关注
+     */
+    clickFollow () {
     }
   },
   mounted () {
