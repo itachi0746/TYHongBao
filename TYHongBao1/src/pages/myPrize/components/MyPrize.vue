@@ -18,26 +18,26 @@
           @load="onLoad"
         >
           <ul ref="img-ul" class="img-ul">
-            <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
-              <div class="li-box">
-                <div class="li-line1">现金红包</div>
-                <div class="li-line2">
-                  888
-                  <i>元</i>
-                </div>
-                <div class="li-line3">有效期至2019-5-22</div>
-              </div>
-            </li>
             <!--<li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">-->
               <!--<div class="li-box">-->
-                <!--<div class="li-line1">{{item.CMF3_PRIZE_NAME}}</div>-->
+                <!--<div class="li-line1">现金红包</div>-->
                 <!--<div class="li-line2">-->
-                  <!--{{item.CMF3_VALUE}}-->
+                  <!--888-->
                   <!--<i>元</i>-->
                 <!--</div>-->
-                <!--<div class="li-line3">有效期至{{item.CMF3_USED_TIME}}</div>-->
+                <!--<div class="li-line3">有效期至2019-5-22</div>-->
               <!--</div>-->
             <!--</li>-->
+            <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
+              <div class="li-box">
+                <div class="li-line1">{{item.CMF3_PRIZE_NAME}}</div>
+                <div class="li-line2">
+                  {{item.CMF3_VALUE}}
+                  <i>元</i>
+                </div>
+                <div class="li-line3">有效期至{{item.CMF3_USED_TIME}}</div>
+              </div>
+            </li>
           </ul>
         </van-list>
     </van-pull-refresh>
@@ -55,7 +55,8 @@ export default {
       loading: false,
       finished: false,
       isLoading: false,
-      pageIndex: 1 // 当前页
+      pageIndex: 1, // 当前页
+      pageCount: null // 总页数
     }
   },
   components: {},
@@ -64,24 +65,17 @@ export default {
   },
   created () {
     const params = utils.getUrlParams()
-    this.id = params.activityid
-    if (!this.id) {
-      utils.toast(this, '未知活动', 'fail')
-      return
-    }
-    const data = {
-      ActivityId: this.id,
-      PageIndex: this.pageIndex
-    }
-    utils.toast(this, '', 'loading')
-    postData('/MyActivityPrizes', data).then((res) => {
-      console.log(res)
-      utils.toast(this, '', 'clear')
-      this.list = res.Data.IList
-      for (let item of this.list) { // 格式化时间
-        utils.formatObj(item, false)
+    if (process.env.NODE_ENV === 'development') { // 测试用id
+      this.id = 'b7be6580608c4f0c942f1ac5594ecc0b'
+    } else {
+      // 生产环境下的id
+      this.id = params.activityid
+      if (!this.id) {
+        utils.toast(this, '未知活动', 'fail')
+        return
       }
-    })
+    }
+    this.getData()
   },
   methods: {
     /**
@@ -97,27 +91,45 @@ export default {
     },
     onLoad () {
       // 异步更新数据
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          this.list.push(this.list.length + 1)
-        }
-        // 加载状态结束
+      if (this.pageCount === this.pageIndex) { // 加载完全部了
+        this.finished = true
         this.loading = false
-
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
-          this.finished = true
-        }
-      }, 500)
+        return
+      }
+      this.pageIndex++
+      this.getData()
     },
     onClickLeft () {
       window.history.back()
     },
     onRefresh () {
-      setTimeout(() => {
-        this.$toast('刷新成功')
+//      setTimeout(() => {
+//        this.$toast('刷新成功')
+//        this.isLoading = false
+//      }, 500)
+      this.pageIndex = 1
+      this.pageCount = null
+      this.list = null
+      this.getData()
+    },
+    getData () {
+      const data = {
+        ActivityId: this.id,
+        PageIndex: this.pageIndex
+      }
+      utils.toast(this, '', 'loading')
+      postData('/MyActivityPrizes', data).then((res) => {
+        console.log(res)
+        utils.toast(this, '', 'clear')
+        this.pageCount = res.PageCount
+        this.pageIndex = res.PageIndex
+        this.loading = false
         this.isLoading = false
-      }, 500)
+        this.list = this.list === null ? res.Data : this.list.concat(res.Data)
+        for (let item of this.list) { // 格式化时间
+          utils.formatObj(item, false)
+        }
+      })
     }
   }
 }

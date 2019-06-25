@@ -11,40 +11,40 @@
       <div class="btn-box">
         <div class="btn" @click="clickGet">领红包</div>
       </div>
-      <!--<div class="ticket-box" v-if="ticketArr">-->
-        <!--<div class="ticket" v-for="(item,index) in ticketArr" :key="index">-->
-          <!--<div class="ticket-l">-->
-            <!--<div class="ticket-num">-->
-              <!--<i class="ticket-icon">￥</i>-->
-              <!--{{item.prize}}-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="ticket-m">-->
-            <!--<div class="m-box">-->
-              <!--<div>优惠券</div>-->
-              <!--<div>有效期至{{item.date}}</div>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="ticket-r">立即领取</div>-->
-        <!--</div>-->
-      <!--</div>-->
-      <div class="ticket-box">
-        <div class="ticket">
+      <div class="ticket-box" v-if="ticketArr">
+        <div class="ticket" v-for="(item,index) in ticketArr" :key="index">
           <div class="ticket-l">
             <div class="ticket-num">
               <i class="ticket-icon">￥</i>
-              200
+              {{item.CMF2_MAX_VALUE}}
             </div>
           </div>
           <div class="ticket-m">
             <div class="m-box">
               <div>优惠券</div>
-              <div>有效期至2019-5-22</div>
+              <div>有效期至{{item.CMF2_USING_END_DATE}}</div>
             </div>
           </div>
           <div class="ticket-r">立即领取</div>
         </div>
       </div>
+      <!--<div class="ticket-box">-->
+        <!--<div class="ticket">-->
+          <!--<div class="ticket-l">-->
+            <!--<div class="ticket-num">-->
+              <!--<i class="ticket-icon">￥</i>-->
+              <!--200-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="ticket-m">-->
+            <!--<div class="m-box">-->
+              <!--<div>优惠券</div>-->
+              <!--<div>有效期至2019-5-22</div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="ticket-r">立即领取</div>-->
+        <!--</div>-->
+      <!--</div>-->
       <div class="rule-box">
         <div class="rule-title">
           <div class="line line1"></div>
@@ -65,7 +65,9 @@
       <div class="kai" v-if="showKai">
         <div>
           <div class="logo-box2">
-            <div class="logo-box2-inner"></div>
+            <div class="logo-box2-inner">
+              <img :src="logoUrl" alt="" v-if="logoUrl">
+            </div>
           </div>
           <div class="kai-font">送了一个红包给你</div>
           <div class="kai-btn" @click="clickKai"></div>
@@ -172,6 +174,27 @@ export default {
      * 点击关注
      */
     clickFollow () {
+    },
+    getData () {
+      const data = {
+        'ActivityId': this.id
+      }
+      utils.toast(this, '', 'loading')
+      postData('/ActivityInfo', data).then((res) => { // 活动信息
+        console.log(res)
+        //      utils.toast(this, '', 'clear')
+        this.ruleDetail = res.Data.CMA1_CONTENT
+        this.logoUrl = res.Data.CMA1_LOGO_URL
+      }).then(() => {
+        postData('/ActivityPrizes', data).then((res2) => { // 活动优惠券
+          console.log(res2)
+          utils.toast(this, '', 'clear')
+          this.ticketArr = res2.Data
+          for (let item of this.ticketArr) {
+            utils.formatObj(item, false)
+          }
+        })
+      })
     }
   },
   mounted () {
@@ -179,26 +202,17 @@ export default {
   },
   created () {
     const params = utils.getUrlParams()
-    this.id = params.activityid
-    if (!this.id) {
-      utils.toast(this, '未知活动', 'fail')
-      return
+    if (process.env.NODE_ENV === 'development') { // 测试用id
+      this.id = 'b7be6580608c4f0c942f1ac5594ecc0b'
+    } else {
+      // 生产环境下的id
+      this.id = params.activityid
+      if (!this.id) {
+        utils.toast(this, '未知活动', 'fail')
+        return
+      }
     }
-    const data = {
-      'ActivityId': this.id
-    }
-    utils.toast(this, '', 'loading')
-    postData('/ActivityInfo', data).then((res) => {
-      console.log(res)
-//      utils.toast(this, '', 'clear')
-      this.ruleDetail = res.Data.CMA1_CONTENT
-      this.logoUrl = res.Data.CMA1_LOGO_URL
-    }).then((res) => {
-      postData('/ActivityPrizes', data).then((res) => {
-        console.log(res)
-        utils.toast(this, '', 'clear')
-      })
-    })
+    this.getData()
   }
 }
 </script>
@@ -466,6 +480,10 @@ export default {
     height: 72px;
     background: url("../assets/logoBg2.png") no-repeat;
     background-size: 100% 100%;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
   .kai-font {
     font-size: 36px;
