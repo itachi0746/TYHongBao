@@ -514,6 +514,46 @@ export default {
       console.log('该浏览器不支持获取地理位置。')
     }
     return {'lng': lng, 'lat': lat}
-  }
+  },
+  /**
+   * 用微信对象获取经纬度
+   */
+  getLocation2 () {
+    try {
+      wx.getLocation({
+        type: 'wgs84', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+        success: function (res) {
+          let latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+          let longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+          // var speed = res.speed; // 速度，以米/每秒计
+          // var accuracy = res.accuracy; // 位置精度
+          return ({'lng': longitude, 'lat': latitude})
+        }
+
+      })
+    } catch (err) {
+      console.log('没有找到wx对象:', err)
+      return ({'lng': 0, 'lat': 0})
+    }
+  },
+  /**
+   * 检测html的fontsize是否已设置, 如果已设置则进行下一步 ,否则递归
+   * @param cb 回调函数
+   * @returns {boolean}
+   */
+  hasSetRem (cb) {
+    let theHTML = document.getElementsByTagName('html')[0]
+    let theFS = theHTML.style.fontSize
+    let time1 // 定时器
+    if (theFS) {
+      clearTimeout(time1) // 清除定时器
+      cb()
+      return false
+    } else {
+      time1 = setTimeout(() => {
+        this.hasSetRem(cb) // 递归扫描
+      }, 300)
+    }
+  },
 
 }

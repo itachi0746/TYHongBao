@@ -18,14 +18,24 @@
           @load="onLoad"
         >
           <ul ref="img-ul" class="img-ul">
+            <!--<li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">-->
+              <!--<div class="li-box">-->
+                <!--<div class="li-line1">现金红包</div>-->
+                <!--<div class="li-line2">-->
+                  <!--888-->
+                  <!--<i>元</i>-->
+                <!--</div>-->
+                <!--<div class="li-line3">有效期至2019-5-22</div>-->
+              <!--</div>-->
+            <!--</li>-->
             <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
-              <div class="li-box">
-                <div class="li-line1">现金红包</div>
+              <div class="li-box" :style="{backgroundImage: `url(${imgObj[item.CMF3_PRIZE_TYPE]})`}">
+                <div class="li-line1">{{item.CMF3_PRIZE_NAME}}</div>
                 <div class="li-line2">
-                  888
+                  {{item.CMF3_VALUE}}
                   <i>元</i>
                 </div>
-                <div class="li-line3">有效期至2019-5-22</div>
+                <div class="li-line3">有效期至{{item.CMF3_USING_END_DATE}}</div>
               </div>
             </li>
           </ul>
@@ -44,65 +54,92 @@ export default {
       list: [],
       loading: false,
       finished: false,
-      isLoading: false
+      isLoading: false,
+      pageIndex: 1, // 当前页
+      pageCount: null, // 总页数
+      imgObj: { // 不同奖品类型对应不同背景图
+        'CMF801': require('../assets/hongbao.png'), // 红包
+        'CMF802': require('../assets/quan.png'), // 券
+        'CMF803': require('../assets/other.png'), // 其他
+        'CMF000': require('../assets/grey.png') // 过期
+      }
     }
   },
   components: {},
   mounted () {
-//    setTimeout(() => {
-//      this.setImgBoxHeight()
-//    }, 300)
-    this.setImgBoxHeight2()
+    utils.hasSetRem(this.setImgBoxHeight2)
   },
   created () {
     const params = utils.getUrlParams()
-    this.id = params.activityid
-    if (!this.id) {
-      utils.toast(this, '未知活动', 'fail')
-      return
+    if (process.env.NODE_ENV === 'development') { // 测试用id
+      this.id = 'b7be6580608c4f0c942f1ac5594ecc0b'
+    } else {
+      // 生产环境下的id
+      this.id = params.activityid
+      if (!this.id) {
+        utils.toast(this, '未知活动', 'fail')
+        return
+      }
     }
-    utils.toast(this, '', 'loading')
-    postData('/MyActivityPrizes', {ActivityId: this.id}).then((res) => {
-      console.log(res)
-      utils.toast(this, '', 'clear')
-      this.list = res.Data.IList
-    })
+    this.getData()
   },
   methods: {
     /**
      * @method 设置滚动容器的高度
      */
     setImgBoxHeight2 () {
-      let windowHeight = document.body.clientHeight;
+      let windowHeight = document.body.clientHeight
       let headerHeight = this.$refs.header.offsetHeight
       console.log(`windowHeight: ${windowHeight}, headerHeight: ${headerHeight}`)
-//      this.$refs['img-box'].style.height = (windowHeight - headerHeight) + 'px'
+      //      this.$refs['img-box'].style.height = (windowHeight - headerHeight) + 'px'
       let imgBox = document.getElementById('img-box')
       imgBox.style.height = (windowHeight - headerHeight) + 'px'
     },
     onLoad () {
       // 异步更新数据
-      setTimeout(() => {
-        for (let i = 0; i < 10; i++) {
-          this.list.push(this.list.length + 1)
-        }
-        // 加载状态结束
+      if (this.pageCount === this.pageIndex) { // 加载完全部了
+        this.finished = true
         this.loading = false
-
-        // 数据全部加载完成
-        if (this.list.length >= 40) {
-          this.finished = true
-        }
-      }, 500)
+        return
+      }
+      this.pageIndex++
+      this.getData()
     },
     onClickLeft () {
       window.history.back()
     },
     onRefresh () {
-      setTimeout(() => {
-        this.$toast('刷新成功')
+      //      setTimeout(() => {
+      //        this.$toast('刷新成功')
+      //        this.isLoading = false
+      //      }, 500)
+      this.pageIndex = 1
+      this.pageCount = null
+      this.list = null
+      this.getData()
+    },
+    getData () {
+      const data = {
+        ActivityId: this.id,
+        PageIndex: this.pageIndex
+      }
+      utils.toast(this, '', 'loading')
+      postData('/MyActivityPrizes', data).then((res) => {
+        console.log(res)
+        utils.toast(this, '', 'clear')
+        this.pageCount = res.PageCount
+        this.pageIndex = res.PageIndex
+        this.loading = false
         this.isLoading = false
-      }, 500)
+        this.list = this.list === null ? res.Data.Models : this.list.concat(res.Data.Models)
+        for (let item of this.list) { // 格式化时间
+          utils.formatObj(item, false)
+          const isExpire = utils.isExpire(item.CMF3_USING_END_DATE)
+          if (isExpire) { // 是否过期
+            item['CMF3_PRIZE_TYPE'] = 'CMF000'
+          }
+        }
+      })
     }
   }
 }

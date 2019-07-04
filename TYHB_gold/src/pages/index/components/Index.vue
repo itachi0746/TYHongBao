@@ -4,7 +4,7 @@
       <div class="logo-box"></div>
       <!--<div class="title-box"></div>-->
 
-      <div class="follow-box">关注"传行"</div>
+      <div class="follow-box" v-if="hasSubscribe" @click="clickFollow">关注"传行"</div>
     </div>
     <div class="btn-box">
       <div class="btn" @click="clickGet">领红包</div>
@@ -12,19 +12,20 @@
       <div class="tuxing2"></div>
     </div>
     <div class="btm">
-      <div class="ticket-box">
-        <div class="ticket">
+      <div class="ticket-box" v-if="ticketArr">
+        <div class="ticket" v-for="(item,index) in ticketArr" :key="index">
           <div class="ticket-l">
             <div class="ticket-num">
               <i class="ticket-icon">￥</i>
-              200
+              {{item.VALUE}}
             </div>
           </div>
           <div class="ticket-r">
-            <div class="ticket-r-l1">优惠券</div>
-            <div class="ticket-r-l2">有效期至2019-5-22</div>
+            <div class="ticket-r-l1">{{item.CC00_COUPON_NAME}}</div>
+            <div class="ticket-r-l2">有效期至{{item.CC00_APPLY_END_DATE}}</div>
             <div class="ticket-r-l3">
-              <div class="ticket-r-l3-btn">立即领取</div>
+              <div class="ticket-r-l3-btn" @click="clickReceive(item)" v-if="item.RECEIVE_STATUS===0">立即领取</div>
+              <div class="ticket-r-l3-btn" v-else>已领取</div>
             </div>
           </div>
         </div>
@@ -40,15 +41,7 @@
             </div>
           </div>
         </div>
-        <div class="rule-main">
-
-          1、本次秒杀活动为中国电信天翼用户专享。
-          2、活动期间使用任何舞弊行为的用户一经发现，即刻取消秒杀活动资格。
-          3、每日秒杀的礼品数量有限，秒完即止。秒杀礼品库存数量在秒杀过程中实时变化，秒杀成功与否以实际结果为准。
-          4、每名用户每天可成功参与一次秒杀，活动期间每名用户最高可成功秒杀5次。
-          5、在成功秒杀后，用户需提供真实信息。如因用户资料不全导致活动奖品无法正确发放的情况，主办方不对由此产生的任何后果负责。
-          6、所有礼品将在活动结束后的15个工作日内免费寄出。
-          7、本活动最终解释权归中国电信天翼爱游戏所有。
+        <div class="rule-main" v-html="ruleDetail">
 
         </div>
       </div>
@@ -60,11 +53,14 @@
       <div class="tuxing3"></div>
       <div class="tuxing4"></div>
     </div>
+    <!--弹窗-->
     <div class="layer-div" @touchmove.prevent="" v-show="showLayer">
       <div class="kai" v-show="showKai">
         <div>
           <div class="logo-box2">
-            <div class="logo-box2-inner"></div>
+            <div class="logo-box2-inner">
+              <img :src="logoUrl" alt="" v-if="logoUrl">
+            </div>
           </div>
           <div class="kai-font">送了一个红包给你</div>
           <div class="kai-btn" @click="clickKai"></div>
@@ -78,14 +74,14 @@
           <div class="kai2-money-box">
             <div class="kai2-money">
               <div class="money-box">
-                <span>200</span>
+                <span>{{redNum}}</span>
                 <span>元</span>
               </div>
             </div>
           </div>
           <div class="kai2-mid">
             <div>恭喜你获得</div>
-            <div>200元红包</div>
+            <div>{{redNum}}元红包</div>
           </div>
           <div class="kai2-btm">
             <div class="kai2-btn" @click="clickKnow">我知道了</div>
@@ -119,6 +115,9 @@ export default {
       showKai3: false,
       logoUrl: null, // 酒店logo图片
       ruleDetail: null, // 活动规则说明
+      ticketArr: null, // 优惠券数组
+      redNum: null, // 红包数值
+      hasSubscribe: false // 有没有关注公众号
     }
   },
   components: {},
@@ -139,8 +138,20 @@ export default {
      * 点击开红包
      */
     clickKai () {
-      this.showKai = false
-      this.showKai2 = true
+      utils.toast(this, '', 'loading')
+      let posObj = utils.getLocation2()
+      let theData = {
+        ActivityId: this.id,
+        latitude: posObj.lat + '',
+        longitude: posObj.lng + ''
+      }
+      postData('/DoDraw', theData).then((res) => {
+        console.log(res)
+        utils.toast(this, '', 'clear')
+        this.redNum = res.Data.CMF3_VALUE
+        this.showKai = false
+        this.showKai2 = true
+      })
     },
     /**
      * 点击知道了 按钮
@@ -153,24 +164,62 @@ export default {
      * 点击我的奖品
      */
     clickMyPrize () {
-      window.GoToPage('', 'myPrize.html', {})
+      window.GoToPage('', 'myPrize.html', {'activityid': this.id})
     },
     /**
-     * 点击签到
+     * 点击关注
      */
-    clickSign () {
-      utils.toast(this, '', 'loading')
-      let posObj = utils.getLocation()
-      // todo 判断经纬度对象是否为空
-      let theData = {
-        ActivityId: this.id,
-        latitude: posObj.lat + '',
-        longitude: posObj.lng + ''
+    clickFollow () {
+    },
+    getData () {
+      const data = {
+        'ActivityId': this.id
       }
-      postData('/SignInActivity', theData).then((res) => {
+      utils.toast(this, '', 'loading')
+      postData('/ActivityInfo', data).then((res) => { // 活动信息
+        console.log(res)
+        //      utils.toast(this, '', 'clear')
+        this.ruleDetail = res.Data.CMA1_CONTENT
+        this.logoUrl = res.Data.CMA1_LOGO_URL
+      }).then(() => {
+        this.getBizCoupon()
+      })
+      postData('/IsSubscribe', {}).then((res) => { // 有没有关注公众号
+        console.log(res)
+        this.hasSubscribe = res.Data.HasSubscribe
+      })
+    },
+    /**
+     * 获取商家优惠券信息
+     */
+    getBizCoupon () {
+      utils.toast(this, '', 'loading')
+      const data = {
+        'ActivityId': this.id
+      }
+      postData('/GetBizCoupon', data).then((res) => {
         console.log(res)
         utils.toast(this, '', 'clear')
-        this.showLayer = true
+        this.ticketArr = res.Data
+        for (let item of this.ticketArr) {
+          utils.formatObj(item, false)
+        }
+      })
+    },
+    /**
+     * 点击领取优惠券
+     * @param item 优惠券对象
+     */
+    clickReceive (item) {
+      utils.toast(this, '', 'loading')
+      const data = {
+        'ActivityId': this.id,
+        'CouponId': item.CC00_COUPON_ID
+      }
+      postData('/ReceiveCoupon', data).then((res) => {
+        console.log(res)
+        utils.toast(this, '领取成功')
+        item.RECEIVE_STATUS = 1
       })
     }
   },
@@ -179,16 +228,17 @@ export default {
   },
   created () {
     const params = utils.getUrlParams()
-    this.id = params.activityid
-    if (!this.id) {
-      utils.toast(this, '未知活动', 'fail')
-      return
+    if (process.env.NODE_ENV === 'development') { // 测试用id
+      this.id = 'b7be6580608c4f0c942f1ac5594ecc0b'
+    } else {
+      // 生产环境下的id
+      this.id = params.activityid
+      if (!this.id) {
+        utils.toast(this, '未知活动', 'fail')
+        return
+      }
     }
-    utils.toast(this, '', 'loading')
-    postData('/ActivityInfo', {'ActivityId': this.id}).then((res) => {
-      console.log(res)
-      utils.toast(this, '', 'clear')
-    })
+    this.getData()
   }
 }
 </script>
@@ -534,7 +584,7 @@ export default {
     .kai2-btn {
       width: 402px;
       height: 96px;
-      background: url("../assets/btnbg2.png") no-repeat;
+      background: url("../assets/btnbg.png") no-repeat;
       background-size: 100% 100%;
       @include defaultFlex;
       color: #86552A;

@@ -5,7 +5,7 @@
         <img :src="logoUrl" alt="" v-if="logoUrl">
       </div>
       <div class="title-box"></div>
-      <div class="follow-box" @click="clickFollow">关注"传行"</div>
+      <div class="follow-box" v-if="hasSubscribe" @click="clickFollow">关注"传行"</div>
     </div>
     <div class="btm">
       <div class="btn-box">
@@ -16,35 +16,19 @@
           <div class="ticket-l">
             <div class="ticket-num">
               <i class="ticket-icon">￥</i>
-              {{item.CMF2_MAX_VALUE}}
+              {{item.VALUE}}
             </div>
           </div>
           <div class="ticket-m">
             <div class="m-box">
-              <div>优惠券</div>
-              <div>有效期至{{item.CMF2_USING_END_DATE}}</div>
+              <div>{{item.CC00_COUPON_NAME}}</div>
+              <div>有效期至{{item.CC00_APPLY_END_DATE}}</div>
             </div>
           </div>
-          <div class="ticket-r">立即领取</div>
+          <div class="ticket-r" @click="clickReceive(item)" v-if="item.RECEIVE_STATUS===0">立即领取</div>
+          <div class="ticket-r" v-else>已领取</div>
         </div>
       </div>
-      <!--<div class="ticket-box">-->
-        <!--<div class="ticket">-->
-          <!--<div class="ticket-l">-->
-            <!--<div class="ticket-num">-->
-              <!--<i class="ticket-icon">￥</i>-->
-              <!--200-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="ticket-m">-->
-            <!--<div class="m-box">-->
-              <!--<div>优惠券</div>-->
-              <!--<div>有效期至2019-5-22</div>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--<div class="ticket-r">立即领取</div>-->
-        <!--</div>-->
-      <!--</div>-->
       <div class="rule-box">
         <div class="rule-title">
           <div class="line line1"></div>
@@ -121,7 +105,8 @@ export default {
       logoUrl: null, // 酒店logo图片
       ruleDetail: null, // 活动规则说明
       ticketArr: null, // 优惠券数组
-      redNum: null // 红包数值
+      redNum: null, // 红包数值
+      hasSubscribe: false // 有没有关注公众号
     }
   },
   components: {},
@@ -143,8 +128,7 @@ export default {
      */
     clickKai () {
       utils.toast(this, '', 'loading')
-      let posObj = utils.getLocation()
-      // todo 判断经纬度对象是否为空
+      let posObj = utils.getLocation2()
       let theData = {
         ActivityId: this.id,
         latitude: posObj.lat + '',
@@ -169,7 +153,7 @@ export default {
      * 点击我的奖品
      */
     clickMyPrize () {
-      window.GoToPage('', 'myPrize.html', {})
+      window.GoToPage('', 'myPrize.html', {'activityid': this.id})
     },
     /**
      * 点击关注
@@ -187,14 +171,44 @@ export default {
         this.ruleDetail = res.Data.CMA1_CONTENT
         this.logoUrl = res.Data.CMA1_LOGO_URL
       }).then(() => {
-        postData('/ActivityPrizes', data).then((res2) => { // 活动优惠券
-          console.log(res2)
-          utils.toast(this, '', 'clear')
-          this.ticketArr = res2.Data
-          for (let item of this.ticketArr) {
-            utils.formatObj(item, false)
-          }
-        })
+        this.getBizCoupon()
+      })
+      postData('/IsSubscribe', {}).then((res) => { // 有没有关注公众号
+        console.log(res)
+        this.hasSubscribe = res.Data.HasSubscribe
+      })
+    },
+    /**
+     * 获取商家优惠券信息
+     */
+    getBizCoupon () {
+      utils.toast(this, '', 'loading')
+      const data = {
+        'ActivityId': this.id
+      }
+      postData('/GetBizCoupon', data).then((res) => {
+        console.log(res)
+        utils.toast(this, '', 'clear')
+        this.ticketArr = res.Data
+        for (let item of this.ticketArr) {
+          utils.formatObj(item, false)
+        }
+      })
+    },
+    /**
+     * 点击领取优惠券
+     * @param item 优惠券对象
+     */
+    clickReceive (item) {
+      utils.toast(this, '', 'loading')
+      const data = {
+        'ActivityId': this.id,
+        'CouponId': item.CC00_COUPON_ID
+      }
+      postData('/ReceiveCoupon', data).then((res) => {
+        console.log(res)
+        utils.toast(this, '领取成功')
+        item.RECEIVE_STATUS = 1
       })
     }
   },
@@ -311,6 +325,8 @@ export default {
     @include borderBox();
     padding: 30px 57px 30px 44px;
     font-size: 34px;
+    display: flex;
+    align-items: center;
   }
 
   .ticket-m {
