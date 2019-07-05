@@ -555,5 +555,14 @@ export default {
       }, 300)
     }
   },
-
+  /**
+   * 比较时间, 是否过期
+   * @param timeStr 时间字符串 格式 '2019-12-12'
+   */
+  isExpire (timeStr) {
+    timeStr += ' 00:00:00'
+    const theTS = new Date(timeStr).getTime()
+    const curTS = new Date().getTime() // 当前时间戳
+    return curTS > theTS
+  }
 }

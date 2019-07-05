@@ -46,7 +46,10 @@
     </div>
     <div class="btn2">
       <div class="btn2-box" @click="clickMyPrize">
-        我的奖品
+        我的红包
+      </div>
+      <div class="btn2-box mt20" @click="clickQuan">
+        我的优惠券
       </div>
     </div>
     <div class="layer-div" @touchmove.prevent="" v-show="showLayer">
@@ -87,7 +90,7 @@
         <div>
           <img src="../assets/cha.png" alt="" class="cha-s" @click="clickClose">
           <div class="kai3-font1">领取成功！</div>
-          <div class="kai3-font2">可到“我的奖品”页面查看</div>
+          <div class="kai3-font2">可到“我的红包”页面查看</div>
         </div>
       </div>
     </div>
@@ -157,6 +160,9 @@ export default {
      */
     clickMyPrize () {
       window.GoToPage('', 'myPrize.html', {'activityid': this.id})
+    },
+    clickQuan () {
+      window.GoToPage('', 'coupon.html', {'activityid': this.id})
     },
     /**
      * 点击关注
@@ -438,8 +444,8 @@ export default {
   }
   .btn2 {
     padding: 60px 0 120px;
-    display: flex;
-    justify-content: center;
+    /*display: flex;*/
+    /*justify-content: center;*/
   }
   .btn2-box {
     width: 402px;
@@ -448,8 +454,9 @@ export default {
     background-size: 100% 100%;
     @include defaultFlex;
     font-size: 36px;
-    color: #fff;
+    color: #DA453B;
     font-weight: bold;
+    margin: 0 auto;
   }
   .layer-div {
     width: 100%;

@@ -30,3 +30,6 @@ i {font-style: normal}
 .van-hairline--bottom::after {
   border: none!important;
 }
+.mt20 {
+  margin-top: 20px!important;
+}

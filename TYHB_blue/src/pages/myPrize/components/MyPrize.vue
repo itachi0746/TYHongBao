@@ -132,6 +132,7 @@ export default {
         this.loading = false
         this.isLoading = false
         this.list = this.list === null ? res.Data.Models : this.list.concat(res.Data.Models)
+        debugger
         for (let item of this.list) { // 格式化时间
           utils.formatObj(item, false)
           const isExpire = utils.isExpire(item.CMF3_USING_END_DATE)

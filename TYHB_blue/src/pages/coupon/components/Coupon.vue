@@ -2,7 +2,7 @@
   <div class="album">
     <div ref="header" class="header">
       <van-nav-bar
-        title="我的红包"
+        title="我的优惠券"
         left-text=""
         right-text=""
         left-arrow
@@ -19,13 +19,13 @@
         >
           <ul ref="img-ul" class="img-ul">
             <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
-              <div class="li-box" :style="{backgroundImage: `url(${imgObj[item.CMF3_PRIZE_TYPE]})`}">
-                <div class="li-line1">{{item.CMF3_PRIZE_NAME}}</div>
+              <div class="li-box">
+                <div class="li-line1">{{item.CC00_COUPON_NAME}}</div>
                 <div class="li-line2">
-                  {{item.CMF3_VALUE}}
+                  {{item.VALUE}}
                   <i>元</i>
                 </div>
-                <div class="li-line3">有效期至{{item.CMF3_USING_END_DATE}}</div>
+                <div class="li-line3">有效期至{{item.CC00_APPLY_END_DATE}}</div>
               </div>
             </li>
           </ul>
@@ -114,7 +114,7 @@ export default {
         PageIndex: this.pageIndex
       }
       utils.toast(this, '', 'loading')
-      postData('/MyActivityPrizes', data).then((res) => {
+      postData('/GetMyCoupons', data).then((res) => {
         console.log(res)
         utils.toast(this, '', 'clear')
         this.pageCount = res.PageCount
@@ -122,11 +122,19 @@ export default {
         this.loading = false
         this.isLoading = false
         this.list = this.list === null ? res.Data.Models : this.list.concat(res.Data.Models)
-        for (let item of this.list) { // 格式化时间
-          utils.formatObj(item, false)
-          const isExpire = utils.isExpire(item.CMF3_USING_END_DATE)
-          if (isExpire) { // 是否过期
-            item['CMF3_PRIZE_TYPE'] = 'CMF000'
+
+        const keyArr = ['CC00_APPLY_END_DATE', 'CC00_APPLY_START_DATE'] // 日期字段
+        for (let item of keyArr) {
+          for (let obj of this.list) {
+            for (let key in obj) {
+              if (key === item) { // 找到日期字段
+                let theArr = obj[key].split(' ')[0].split('/')
+                for (let i = 0; i < theArr.length; i++) {
+                  theArr[i] = utils.add0(eval(theArr[i])) // 小于10 加上0前缀
+                }
+                obj[key] = theArr.join('-') // 赋值
+              }
+            }
           }
         }
       })
@@ -172,7 +180,7 @@ export default {
   .li-box {
     height: 208px;
     width: 100%;
-    background: url("../assets/hongbao.png") no-repeat;
+    background: url("../assets/quan.png") no-repeat;
     background-size: 100% 100%;
     @include borderBox();
     color: #fff;
