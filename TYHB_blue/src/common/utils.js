@@ -564,5 +564,84 @@ export default {
     const theTS = new Date(timeStr).getTime()
     const curTS = new Date().getTime() // 当前时间戳
     return curTS > theTS
-  }
+  },
+  /**
+   * 用微信对象获取经纬度
+   */
+  //微信JS-SDK获取经纬度方法
+  weichatLatAndLon (callback, error) {
+    var that = this;
+    var data = null
+    var timestamp = new Date().getTime() + "";
+    timestamp = timestamp.substring(0, 10);
+    // var ranStr = randomString();
+
+    //微信接口配置
+    // wx.config({
+    // debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+    // appId: 'XXXXXXXXXXXXXXXXX', // 必填，公众号的唯一标识
+    // timestamp: timestamp, // 必填，生成签名的时间戳
+    // nonceStr: ranStr, // 必填，生成签名的随机串
+    // signature: 'XXXXXXXXXXXXXXXXX',// 必填，签名，见附录1
+    // jsApiList: ['checkJsApi',
+    //   'getLocation'
+    // ] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    // });
+
+    //参见微信JS SDK文档：http://mp.weixin.qq.com/wiki/7/aaa137b55fb2e0456bf8dd9148dd613f.html
+    return new Promise(function (resolve, reject) {
+      try {
+        // wx.ready(function () {
+        wx.getLocation({
+          success: function (res) {
+            var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+            var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+            var speed = res.speed; // 速度，以米/每秒计
+            var accuracy = res.accuracy; // 位置精度
+            localStorage.setItem("latitude", latitude);
+            localStorage.setItem("longitude", longitude);
+            data = {
+              lat: latitude,
+              lng: longitude
+            };
+            console.log('获取位置成功: ', JSON.stringify(data))
+            resolve(data)
+          },
+          cancel: function () {
+            //这个地方是用户拒绝获取地理位置
+            console.log('获取位置失败: 用户拒绝')
+            data = {
+              lat: 0,
+              lng: 0
+            };
+            reject(data)
+          },
+          fail: function (res) {
+            console.log('获取位置失败: ', JSON.stringify(res))
+            data = {
+              lat: 0,
+              lng: 0
+            };
+            reject(data)
+          }
+        });
+        wx.error(function (res) {
+          console.log('获取位置失败: ', JSON.stringify(res))
+          data = {
+            lat: 0,
+            lng: 0
+          };
+          reject(data)
+        });
+        // });
+      } catch (err) {
+        console.log('没有err对象: ', JSON.stringify(err))
+        data = {
+          lat: 0,
+          lng: 0
+        };
+        reject(data)
+      }
+    })
+  },
 }

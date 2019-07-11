@@ -5,7 +5,7 @@
         <img :src="logoUrl" alt="" v-if="logoUrl">
       </div>
       <div class="title-box"></div>
-      <div class="follow-box" v-if="hasSubscribe" @click="clickFollow">关注"传行"</div>
+      <div class="follow-box" v-if="!hasSubscribe" @click="clickFollow">关注"传行"</div>
     </div>
     <div class="btm">
       <div class="btn-box">
@@ -50,7 +50,7 @@
     </div>
     <!--弹窗-->
     <div class="layer-div" @touchmove.prevent="" v-if="showLayer">
-      <div class="kai" v-if="showKai">
+      <div class="kai" v-show="showKai">
         <div>
           <div class="logo-box2">
             <div class="logo-box2-inner">
@@ -64,7 +64,7 @@
           <img @click="clickClose" class="cha" src="../assets/cha.png" alt="">
         </div>
       </div>
-      <div class="kai2" v-if="showKai2">
+      <div class="kai2" v-show="showKai2">
         <div>
           <div class="kai2-money-box">
             <div class="kai2-money">
@@ -83,7 +83,7 @@
           </div>
         </div>
       </div>
-      <div class="kai3" v-if="showKai3">
+      <div class="kai3" v-show="showKai3">
         <div>
           <img src="../assets/cha-s.png" alt="" class="cha-s" @click="clickClose">
           <div class="kai3-font1">领取成功！</div>
@@ -96,6 +96,7 @@
 
 <script>
 import { utils, postData } from '../../../common'
+import {ImagePreview} from 'vant'
 
 export default {
   data () {
@@ -109,7 +110,8 @@ export default {
       ruleDetail: null, // 活动规则说明
       ticketArr: null, // 优惠券数组
       redNum: null, // 红包数值
-      hasSubscribe: false // 有没有关注公众号
+      hasSubscribe: true, // 有没有关注公众号
+      theImgUrl: '' // 公众号图片
     }
   },
   components: {},
@@ -129,14 +131,11 @@ export default {
     /**
      * 点击开红包
      */
-    clickKai () {
+    async clickKai () {
       utils.toast(this, '', 'loading')
-      let posObj = utils.getLocation2()
-      let theData = {
-        ActivityId: this.id,
-        latitude: posObj.lat + '',
-        longitude: posObj.lng + ''
-      }
+      let theData = {}
+      theData = await utils.weichatLatAndLon()
+      theData['ActivityId'] = this.id
       postData('/DoDraw', theData).then((res) => {
         console.log(res)
         utils.toast(this, '', 'clear')
@@ -162,9 +161,14 @@ export default {
       window.GoToPage('', 'coupon.html', {'activityid': this.id})
     },
     /**
-     * 点击关注
+     * 点击关注 显示公众号图片
      */
     clickFollow () {
+      if (this.theImgUrl) {
+        ImagePreview([
+          this.theImgUrl
+        ])
+      }
     },
     getData () {
       const data = {
@@ -176,12 +180,16 @@ export default {
         //      utils.toast(this, '', 'clear')
         this.ruleDetail = res.Data.CMA1_CONTENT
         this.logoUrl = res.Data.CMA1_LOGO_URL
+        if (res.Data.CMA1_TITLE) {
+          document.title = res.Data.CMA1_TITLE
+        }
       }).then(() => {
         this.getBizCoupon()
       })
       postData('/IsSubscribe', {}).then((res) => { // 有没有关注公众号
         console.log(res)
         this.hasSubscribe = res.Data.HasSubscribe
+        this.theImgUrl = res.Data.Image
       })
     },
     /**
@@ -241,7 +249,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
   .index {
-    background-color: #EF4143;
+    background-color: #e43931;
   }
 
   .top {
@@ -294,6 +302,7 @@ export default {
     border-radius: 16px;
     background-color: #D71820;
     margin: 0 auto;
+    overflow-x: hidden;
   }
 
   .btn-box {
@@ -308,7 +317,7 @@ export default {
     background-size: 100% 100%;
     color: #DA453B;
     @include defaultFlex;
-    font-weight: bold;
+    font-weight: 600;
   }
 
   .ticket-box {
@@ -333,12 +342,14 @@ export default {
     font-size: 34px;
     display: flex;
     align-items: center;
+    font-weight: bold;
   }
 
   .ticket-m {
     width: 276px;
     height: 100%;
     @include defaultFlex;
+    font-weight: 500;
   }
 
   .m-box div:nth-child(1) {
@@ -360,6 +371,7 @@ export default {
     font-size: 100px;
     @include center;
     left: 60%;
+    font-family: 'fzztjw';
   }
 
   .ticket-icon {
@@ -371,8 +383,7 @@ export default {
   }
 
   .rule-box {
-    /*padding: 80px 21px 55px;*/
-    padding: 80px 0 55px;
+    padding: 80px 0 0px;
   }
 
   .line {
@@ -412,11 +423,16 @@ export default {
     color: #fff;
     padding: 0 21px;
 
-    /deep/ *{
+    /deep/ * {
       padding:0;
       margin:0;
-      font-size: 28px;
-      color: #fff;
+      font-size: 28px!important;
+      color: #fff!important;
+      background-color: transparent!important;
+    }
+    /deep/ img {
+      max-width: 100%!important;
+      /*max-height: 100%;*/
     }
   }
   .btn2 {

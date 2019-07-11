@@ -6,7 +6,7 @@
       <div class="btn-box">
         <div class="btn" @click="clickGet">领红包</div>
       </div>
-      <div class="follow-box" v-if="hasSubscribe" @click="clickFollow">关注"传行"</div>
+      <div class="follow-box" v-if="!hasSubscribe" @click="clickFollow">关注"传行"</div>
     </div>
     <div class="btm">
 
@@ -99,6 +99,7 @@
 
 <script>
 import { utils, postData } from '../../../common'
+import {ImagePreview} from 'vant'
 
 export default {
   data () {
@@ -112,7 +113,8 @@ export default {
       ruleDetail: null, // 活动规则说明
       ticketArr: null, // 优惠券数组
       redNum: null, // 红包数值
-      hasSubscribe: false // 有没有关注公众号
+      hasSubscribe: true, // 有没有关注公众号
+      theImgUrl: '' // 公众号图片
     }
   },
   components: {},
@@ -132,14 +134,11 @@ export default {
     /**
      * 点击开红包
      */
-    clickKai () {
+    async clickKai () {
       utils.toast(this, '', 'loading')
-      let posObj = utils.getLocation2()
-      let theData = {
-        ActivityId: this.id,
-        latitude: posObj.lat + '',
-        longitude: posObj.lng + ''
-      }
+      let theData = {}
+      theData = await utils.weichatLatAndLon()
+      theData['ActivityId'] = this.id
       postData('/DoDraw', theData).then((res) => {
         console.log(res)
         utils.toast(this, '', 'clear')
@@ -168,6 +167,11 @@ export default {
      * 点击关注
      */
     clickFollow () {
+      if (this.theImgUrl) {
+        ImagePreview([
+          this.theImgUrl
+        ])
+      }
     },
     getData () {
       const data = {
@@ -179,12 +183,16 @@ export default {
         //      utils.toast(this, '', 'clear')
         this.ruleDetail = res.Data.CMA1_CONTENT
         this.logoUrl = res.Data.CMA1_LOGO_URL
+        if (res.Data.CMA1_TITLE) {
+          document.title = res.Data.CMA1_TITLE
+        }
       }).then(() => {
         this.getBizCoupon()
       })
       postData('/IsSubscribe', {}).then((res) => { // 有没有关注公众号
         console.log(res)
         this.hasSubscribe = res.Data.HasSubscribe
+        this.theImgUrl = res.Data.Image
       })
     },
     /**
@@ -294,6 +302,8 @@ export default {
     background-color: #3E50B4;
     margin: 0 auto;
     padding-top: 60px;
+    overflow-x: hidden;
+
   }
 
   .btn-box {
@@ -310,7 +320,7 @@ export default {
     background-size: 100% 100%;
     color: #fff;
     @include defaultFlex;
-    font-weight: bold;
+    font-weight: 600;
     margin: 0 auto;
   }
 
@@ -335,6 +345,8 @@ export default {
     padding: 30px 0;
     font-size: 34px;
     text-align: center;
+    font-weight: bold;
+
   }
   .ticket-r-l1 {
     font-size: 36px;
@@ -361,6 +373,8 @@ export default {
     width: 276px;
     height: 100%;
     @include defaultFlex;
+    font-weight: 500;
+
   }
 
   .m-box div:nth-child(1) {
@@ -383,6 +397,8 @@ export default {
     font-size: 88px;
     @include center;
     left: 60%;
+    font-family: 'fzztjw';
+
   }
 
   .ticket-icon {
@@ -394,7 +410,7 @@ export default {
   }
 
   .rule-box {
-    padding: 60px 0 55px;
+    padding: 60px 0 0px;
   }
 
   .line {
@@ -438,8 +454,14 @@ export default {
     /deep/ *{
       padding:0;
       margin:0;
-      font-size: 28px;
-      color: #fff;
+      font-size: 28px!important;
+      color: #fff!important;
+      background-color: transparent!important;
+
+    }
+    /deep/ img {
+      max-width: 100%!important;
+      /*max-height: 100%;*/
     }
   }
   .btn2 {

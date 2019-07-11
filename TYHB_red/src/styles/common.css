@@ -31,5 +31,12 @@ i {font-style: normal}
   border: none!important;
 }
 .mt20 {
-  margin-top: 20px!important;
+  margin-top: 50px!important;
+}
+
+@font-face {
+  font-family:'fzztjw';
+  src: url('./impact.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
