@@ -493,6 +493,7 @@ export default {
     color: #86552A;
     font-weight: bold;
     margin: 0 auto;
+    white-space:nowrap;
   }
   .layer-div {
     width: 100%;

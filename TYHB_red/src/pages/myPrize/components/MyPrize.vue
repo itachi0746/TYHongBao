@@ -16,6 +16,7 @@
           :finished="finished"
           finished-text="没有更多了"
           @load="onLoad"
+          v-if="list.length"
         >
           <ul ref="img-ul" class="img-ul">
             <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
@@ -29,14 +30,16 @@
               </div>
             </li>
           </ul>
+
         </van-list>
+      <Empty v-else></Empty>
     </van-pull-refresh>
   </div>
 </template>
 
 <script>
 import { utils, postData } from '../../../common'
-
+import Empty from '../../../components/Empty.vue'
 export default {
   data () {
     return {
@@ -55,7 +58,7 @@ export default {
       }
     }
   },
-  components: {},
+  components: {Empty},
   mounted () {
     utils.hasSetRem(this.setImgBoxHeight2)
   },
@@ -200,4 +203,5 @@ export default {
     right: 30px;
     bottom: 30px;
   }
+
 </style>

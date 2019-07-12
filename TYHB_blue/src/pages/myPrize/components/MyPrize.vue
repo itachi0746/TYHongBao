@@ -16,18 +16,10 @@
           :finished="finished"
           finished-text="没有更多了"
           @load="onLoad"
+          v-if="list.length"
+
         >
           <ul ref="img-ul" class="img-ul">
-            <!--<li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">-->
-              <!--<div class="li-box">-->
-                <!--<div class="li-line1">现金红包</div>-->
-                <!--<div class="li-line2">-->
-                  <!--888-->
-                  <!--<i>元</i>-->
-                <!--</div>-->
-                <!--<div class="li-line3">有效期至2019-5-22</div>-->
-              <!--</div>-->
-            <!--</li>-->
             <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
               <div class="li-box" :style="{backgroundImage: `url(${imgObj[item.CMF3_PRIZE_TYPE]})`}">
                 <div class="li-line1">{{item.CMF3_PRIZE_NAME}}</div>
@@ -40,12 +32,15 @@
             </li>
           </ul>
         </van-list>
+      <Empty v-else></Empty>
+
     </van-pull-refresh>
   </div>
 </template>
 
 <script>
 import { utils, postData } from '../../../common'
+import Empty from '../../../components/Empty.vue'
 
 export default {
   data () {
@@ -65,7 +60,7 @@ export default {
       }
     }
   },
-  components: {},
+  components: {Empty},
   mounted () {
     utils.hasSetRem(this.setImgBoxHeight2)
   },

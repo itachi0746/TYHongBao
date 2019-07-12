@@ -476,9 +476,10 @@ export default {
     background-size: 100% 100%;
     @include defaultFlex;
     font-size: 36px;
-    color: #DA453B;
+    color: #ffffff;
     font-weight: bold;
     margin: 0 auto;
+    white-space:nowrap;
   }
   .layer-div {
     width: 100%;
