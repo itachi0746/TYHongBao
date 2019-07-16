@@ -183,7 +183,7 @@ export default {
     background: url("../assets/quan.png") no-repeat;
     background-size: 100% 100%;
     @include borderBox();
-    color: #fff;
+    color: #86552A;
     position: relative;
   }
   .li-line1 {
