@@ -1,6 +1,14 @@
 <template>
   <div class="index">
-    <div class="top">
+    <div class="top" v-if="!theBgImg">
+      <div class="logo-box"></div>
+      <div class="title-box"></div>
+      <div class="btn-box">
+        <div class="btn" @click="clickGet">领红包</div>
+      </div>
+      <div class="follow-box" v-if="!hasSubscribe" @click="clickFollow">关注"传行"</div>
+    </div>
+    <div class="top" :style="{'backgroundImage': `url(${theBgImg})`}" v-else>
       <div class="logo-box"></div>
       <div class="title-box"></div>
       <div class="btn-box">
@@ -114,7 +122,8 @@ export default {
       ticketArr: null, // 优惠券数组
       redNum: null, // 红包数值
       hasSubscribe: true, // 有没有关注公众号
-      theImgUrl: '' // 公众号图片
+      theImgUrl: '', // 公众号图片
+      theBgImg: null // 背景图片
     }
   },
   components: {},
@@ -183,6 +192,7 @@ export default {
         //      utils.toast(this, '', 'clear')
         this.ruleDetail = res.Data.CMA1_CONTENT
         this.logoUrl = res.Data.CMA1_LOGO_URL
+        this.theBgImg = res.Data.CMA1_IMG_URL
         if (res.Data.CMA1_TITLE) {
           document.title = res.Data.CMA1_TITLE
         }
