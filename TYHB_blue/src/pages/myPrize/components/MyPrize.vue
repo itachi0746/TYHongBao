@@ -27,7 +27,7 @@
                   {{item.CMF3_VALUE}}
                   <i>元</i>
                 </div>
-                <div class="li-line3">有效期至{{item.CMF3_USING_END_DATE}}</div>
+                <div class="li-line3" style="display: none;">有效期至{{item.CMF3_USING_END_DATE}}</div>
               </div>
             </li>
           </ul>
@@ -132,7 +132,7 @@ export default {
           utils.formatObj(item, false)
           const isExpire = utils.isExpire(item.CMF3_USING_END_DATE)
           if (isExpire) { // 是否过期
-            item['CMF3_PRIZE_TYPE'] = 'CMF000'
+//            item['CMF3_PRIZE_TYPE'] = 'CMF000'
           }
         }
       })

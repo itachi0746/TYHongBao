@@ -1,13 +1,19 @@
 <template>
   <div class="index">
     <div class="top" v-if="!theBgImg">
-      <div class="logo-box"></div>
+      <div class="logo-box">
+        <img :src="logoUrl" alt="" v-if="logoUrl">
+
+      </div>
       <!--<div class="title-box"></div>-->
 
       <div class="follow-box" v-if="!hasSubscribe" @click="clickFollow">关注"传行"</div>
     </div>
     <div class="top" :style="{'backgroundImage': `url(${theBgImg})`}" v-else>
-      <div class="logo-box"></div>
+      <div class="logo-box">
+        <img :src="logoUrl" alt="" v-if="logoUrl">
+
+      </div>
       <!--<div class="title-box"></div>-->
 
       <div class="follow-box" v-if="!hasSubscribe" @click="clickFollow">关注"传行"</div>
@@ -287,6 +293,10 @@ export default {
     background-size: 100% 100%;
     width: 324px;
     height: 76px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .title-box {
