@@ -16,16 +16,19 @@
           :finished="finished"
           finished-text="没有更多了"
           @load="onLoad"
+          v-if="list.length"
         >
           <ul ref="img-ul" class="img-ul">
-            <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index">
+            <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index" @click="toDetail(item.CC05_RCD_ID)">
               <div class="li-box">
                 <div class="li-line1">{{item.CC00_COUPON_NAME}}</div>
                 <div class="li-line2">
-                  {{item.VALUE}}
-                  <i>元</i>
+                  <!--{{item.VALUE }}-->
+                  <!--<i> 元</i>-->
+                  <!--<span class="shuxian">｜</span>-->
+                  <i class="shop-name">{{item.BIZ_NAME}}</i>
                 </div>
-                <div class="li-line3">有效期至{{item.CC00_APPLY_END_DATE}}</div>
+                <!--<div class="li-line3">有效期至{{item.CC00_APPLY_END_DATE}}</div>-->
               </div>
             </li>
           </ul>
@@ -36,6 +39,7 @@
 
 <script>
 import { utils, postData } from '../../../common'
+import Empty from '../../../components/Empty.vue'
 
 export default {
   data () {
@@ -55,7 +59,7 @@ export default {
       }
     }
   },
-  components: {},
+  components: {Empty},
   mounted () {
     utils.hasSetRem(this.setImgBoxHeight2)
   },
@@ -74,6 +78,10 @@ export default {
     this.getData()
   },
   methods: {
+    // 去券详情
+    toDetail (id) {
+      window.GoToPage('', 'couponDetail.html', {'couponid': id})
+    },
     /**
      * @method 设置滚动容器的高度
      */
@@ -105,7 +113,7 @@ export default {
 //      }, 500)
       this.pageIndex = 1
       this.pageCount = null
-      this.list = null
+      this.list = []
       this.getData()
     },
     getData () {
@@ -121,7 +129,7 @@ export default {
         this.pageIndex = res.PageIndex
         this.loading = false
         this.isLoading = false
-        this.list = this.list === null ? res.Data.Models : this.list.concat(res.Data.Models)
+        this.list = this.list === [] ? res.Data.Models : this.list.concat(res.Data.Models)
 
         const keyArr = ['CC00_APPLY_END_DATE', 'CC00_APPLY_START_DATE'] // 日期字段
         for (let item of keyArr) {
@@ -207,5 +215,8 @@ export default {
     position: absolute;
     right: 30px;
     bottom: 30px;
+  }
+  .shop-name {
+    font-weight: normal;
   }
 </style>

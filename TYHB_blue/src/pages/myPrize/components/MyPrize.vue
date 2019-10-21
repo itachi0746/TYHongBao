@@ -110,7 +110,7 @@ export default {
       //      }, 500)
       this.pageIndex = 1
       this.pageCount = null
-      this.list = null
+      this.list = []
       this.getData()
     },
     getData () {
@@ -126,8 +126,8 @@ export default {
         this.pageIndex = res.PageIndex
         this.loading = false
         this.isLoading = false
-        this.list = this.list === null ? res.Data.Models : this.list.concat(res.Data.Models)
-        debugger
+        this.list = this.list === [] ? res.Data.Models : this.list.concat(res.Data.Models)
+//        debugger
         for (let item of this.list) { // 格式化时间
           utils.formatObj(item, false)
           const isExpire = utils.isExpire(item.CMF3_USING_END_DATE)

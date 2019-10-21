@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'http://localhost:16789/ActivityRedService',  // 通过本地服务器将你的请求转发到这个地址
+        target: 'http://localhost:16789/ActivityRedService',  // PS: 打开的后台服务 需要登录 才能正常请求到数据(点击用户中心 登录)
         changeOrigin: true,  // 设置这个参数可以避免跨域
         pathRewrite: {
           '^/api': ''

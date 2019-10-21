@@ -251,7 +251,7 @@ export default {
   created () {
     const params = utils.getUrlParams()
     if (process.env.NODE_ENV === 'development') { // 测试用id
-      this.id = 'b7be6580608c4f0c942f1ac5594ecc0b'
+      this.id = 'e23e2ac9c28b4fffb0069a5330c9edc9'
     } else {
       // 生产环境下的id
       this.id = params.activityid

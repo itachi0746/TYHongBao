@@ -2,39 +2,36 @@
   <div class="album">
     <div ref="header" class="header">
       <van-nav-bar
-        title="我的优惠券"
+        title="优惠券详情"
         left-text=""
         right-text=""
         left-arrow
         @click-left="onClickLeft"
         @click-right=""
       />
+      </div>
+    <div id="img-box" class="img-box" ref="img-box">
+      <!--使用规则,使用时间,可分享-->
+      <div class="main-box">
+        <div class="main-box-inner">
+          <div class="c-detial">
+            <!--<div class="c-detial-logo-box">-->
+              <!--<span class="c-detial-logo" :style="{'backgroundImage':logoUrl}">-->
+              <!--</span>-->
+            <!--</div>-->
+            <div class="c-detial-name">{{cName}}</div>
+            <div class="c-detial-shop">{{sName}}</div>
+            <div class="c-detial-desc">
+              {{cDesc}}
+            </div>
+            <div class="c-detial-time">使用时间: {{startTime}} 至 {{endTime}}</div>
+          </div>
+          <div class="tips">
+            温馨提示: 可截图分享优惠券
+          </div>
+        </div>
+      </div>
     </div>
-    <van-pull-refresh v-model="isLoading" @refresh="onRefresh" id="img-box" class="img-box" ref="img-box">
-        <van-list
-          v-model="loading"
-          :finished="finished"
-          finished-text="没有更多了"
-          @load="onLoad"
-          v-if="list.length"
-        >
-          <ul ref="img-ul" class="img-ul">
-            <li class="img-li" ref="img-li" v-for="(item,index) in list" :key="index" @click="toDetail(item.CC05_RCD_ID)">
-              <div class="li-box">
-                <div class="li-line1">{{item.CC00_COUPON_NAME}}</div>
-                <div class="li-line2">
-                  <!--{{item.VALUE }}-->
-                  <!--<i> 元</i>-->
-                  <!--<span class="shuxian">｜</span>-->
-                  <i class="shop-name">{{item.BIZ_NAME}}</i>
-                </div>
-                <!--<div class="li-line3">有效期至{{item.CC00_APPLY_END_DATE}}</div>-->
-              </div>
-            </li>
-          </ul>
-        </van-list>
-      <Empty v-else></Empty>
-    </van-pull-refresh>
   </div>
 </template>
 
@@ -57,7 +54,13 @@ export default {
         'CMF802': require('../assets/quan.png'), // 券
         'CMF803': require('../assets/other.png'), // 其他
         'CMF000': require('../assets/grey.png') // 过期
-      }
+      },
+      logoUrl: '',
+      cName: '', // 优惠券名字
+      sName: '', // 商家名字
+      cDesc: '', // 优惠券描述
+      startTime: '',
+      endTime: ''
     }
   },
   components: {
@@ -68,15 +71,20 @@ export default {
   },
   created () {
     const params = utils.getUrlParams()
-    if (process.env.NODE_ENV === 'development') { // 测试用id
-      this.id = 'e23e2ac9c28b4fffb0069a5330c9edc9'
-    } else {
-      // 生产环境下的id
-      this.id = params.activityid
-      if (!this.id) {
-        utils.toast(this, '未知活动', 'fail')
-        return
-      }
+//    if (process.env.NODE_ENV === 'development') { // 测试用id
+//      this.id = 'e23e2ac9c28b4fffb0069a5330c9edc9'
+//    } else {
+//      // 生产环境下的id
+//      this.id = params.couponid
+//      if (!this.id) {
+//        utils.toast(this, '未知活动', 'fail')
+//        return
+//      }
+//    }
+    this.id = params.couponid
+    if (!this.id) {
+      utils.toast(this, '未知id', 'fail')
+      return
     }
     this.getData()
   },
@@ -92,63 +100,23 @@ export default {
       let imgBox = document.getElementById('img-box')
       imgBox.style.height = (windowHeight - headerHeight) + 'px'
     },
-    onLoad () {
-      // 异步更新数据
-      if (this.pageCount === this.pageIndex) { // 加载完全部了
-        this.finished = true
-        this.loading = false
-        return
-      }
-      this.pageIndex++
-      this.getData()
-    },
     onClickLeft () {
       window.history.back()
     },
-    onRefresh () {
-//      setTimeout(() => {
-//        this.$toast('刷新成功')
-//        this.isLoading = false
-//      }, 500)
-      this.pageIndex = 1
-      this.pageCount = null
-      this.list = []
-      this.getData()
-    },
     getData () {
       const data = {
-        ActivityId: this.id,
-        PageIndex: this.pageIndex
+        id: this.id
       }
       utils.toast(this, '', 'loading')
-      postData('/GetMyCoupons', data).then((res) => {
+      postData('/GetCouponDetial', data).then((res) => {
         console.log(res)
         utils.toast(this, '', 'clear')
-        this.pageCount = res.PageCount
-        this.pageIndex = res.PageIndex
-        this.loading = false
-        this.isLoading = false
-        this.list = this.list === [] ? res.Data.Models : this.list.concat(res.Data.Models)
-
-        const keyArr = ['CC00_APPLY_END_DATE', 'CC00_APPLY_START_DATE'] // 日期字段
-        for (let item of keyArr) {
-          for (let obj of this.list) {
-            for (let key in obj) {
-              if (key === item) { // 找到日期字段
-                let theArr = obj[key].split(' ')[0].split('/')
-                for (let i = 0; i < theArr.length; i++) {
-                  theArr[i] = utils.add0(eval(theArr[i])) // 小于10 加上0前缀
-                }
-                obj[key] = theArr.join('-') // 赋值
-              }
-            }
-          }
-        }
+        this.cName = res.Data.CC00_COUPON_NAME
+        this.sName = res.Data.BIZ_NAME
+        this.cDesc = res.Data.DESC
+        this.startTime = utils.handleTime(res.Data.CC00_APPLY_START_DATE)
+        this.endTime = utils.handleTime(res.Data.CC00_APPLY_END_DATE)
       })
-    },
-    // 去券详情
-    toDetail (id) {
-      window.GoToPage('', 'couponDetail.html', {'couponid': id})
     }
   }
 }
@@ -229,5 +197,68 @@ export default {
   }
   .shop-name {
     font-weight: normal;
+  }
+  .main-box {
+    padding: 20px;
+    /*background-color: #fff;*/
+    width: 100%;
+    height: 100%;
+    @include borderBox();
+  }
+  .main-box-inner {
+    width: 100%;
+    /*height: 100%;*/
+  }
+  .c-detial-shop {
+    font-size: 25px;
+    color: #969799;
+    margin-bottom: 20px;
+    margin-top: 20px;
+
+  }
+  .c-detial-name {
+    font-size: 50px;
+    color: #fff;
+  }
+  .c-detial {
+    text-align: center;
+    padding-top: 50px;
+    background-color: #5885cf;
+    border-radius: 20px;
+
+  }
+  .c-detial-logo-box {
+    /*height: 70px;*/
+    margin-top: 30px;
+    text-align: center;
+    padding-top: 10px;
+  }
+  .c-detial-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #000000;
+    display: inline-block;
+  }
+  .c-detial-desc {
+    font-size: 30px;
+    color: #fff;
+    margin-top: 20px;
+  }
+  .c-detial-time {
+    text-align: right;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #fff;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-top: 50px;
+  }
+  .tips {
+    color: #666;
+    font-size: 14px;
+    text-align: right;
+    padding-top: 10px;
+    padding-right: 20px;
   }
 </style>
