@@ -210,14 +210,14 @@ export default {
     /*height: 100%;*/
   }
   .c-detial-shop {
-    font-size: 25px;
-    color: #969799;
+    font-size: 30px;
+    color: #fff;
     margin-bottom: 20px;
     margin-top: 20px;
 
   }
   .c-detial-name {
-    font-size: 50px;
+    font-size: 55px;
     color: #fff;
   }
   .c-detial {
@@ -241,14 +241,17 @@ export default {
     display: inline-block;
   }
   .c-detial-desc {
-    font-size: 30px;
+    font-size: 35px;
     color: #fff;
     margin-top: 20px;
+    padding: 0 20px;
+    white-space: pre-line;
+
   }
   .c-detial-time {
     text-align: right;
     margin-top: 20px;
-    font-size: 14px;
+    font-size: 30px;
     color: #fff;
     padding-right: 20px;
     padding-bottom: 20px;
@@ -256,7 +259,7 @@ export default {
   }
   .tips {
     color: #666;
-    font-size: 14px;
+    font-size: 25px;
     text-align: right;
     padding-top: 10px;
     padding-right: 20px;
